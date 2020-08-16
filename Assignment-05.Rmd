@@ -41,7 +41,8 @@ write_csv(Country_Death_Tibble, "./output/GFI_total_deaths_by_date.csv")
 ```{r, echo=FALSE, message=FALSE,warning=FALSE}
 read_csv("./output/GFI_total_deaths_by_date.csv") %>% group_by(Country) %>% mutate(Daily_Deaths=Total_Deaths - lag(Total_Deaths, n=1, default = NA)) %>% select(-Total_Deaths) %>% write_csv("./output/GFI_daily_deaths_by_date.csv")
 ```
-
+## Introduction
+This analysis attempts to demonstrate the number of daily and total deaths amongst 3 different countries. The three contries chosen for this analysis were Germany, France, and Italy. The following information shows the daily and total death rates for each country.
 <!-- (6) Write a chunk that uses ggplot2 to create a line graph that comparing the total deaths between the three countries over time. Color each line by country and use a line size of 1.5. Set the Y axis to be a log10 scale, and label that axis as Total COVID-19 Deaths. Please use the ggplot2 linedraw theme for your plot. --> 
 ```{r, message=FALSE, echo=FALSE, warning=FALSE}
 TotalDeaths <- read_csv("./output/GFI_total_deaths_by_date.csv")
@@ -62,10 +63,18 @@ ggplot(DailyDeaths, aes(x = Date, y = Daily_Deaths, color = Country)) +
 	theme_linedraw()
 ```
 	
-```
 
 <!-- (8) Write one last chuck that groups the daily death data by country and finds the maximum number of deaths per day. Use knitr::kable() to display this as a table in your html document. -->  
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+Max_Dailys <- DailyDeaths %>%
+	group_by(Country) %>%
+	summarize(max(Daily_Deaths, na.rm = TRUE))
 
+knitr::kable(Max_Dailys)
+```
+
+## Conclusion
+Based on the information above, we can see that Italy has had the highest overall deaths generally throughout the Covid-19 pandemic compared to France and Germany. France has had the second highest amongst the three, and Germany has had the least. Germany has had consistently lower daily deaths than the other two countries, and France has had the least consistent amount of daily deaths. Overall, the total and daily deaths for Italy have been the worst, except for a few days for France. The maximum daily deaths for France was over 1400, while the maximum for Italy was not even 1000, even though Italy was still greater in deaths overall. 
 
 
 <!-- (9) Using markdown, provide an introduction and conclusion section before and after the analysis that you just performed, respectively. These sections should be level 2 headings. --> 
@@ -73,8 +82,8 @@ ggplot(DailyDeaths, aes(x = Date, y = Daily_Deaths, color = Country)) +
 
 <!-- (10) Cite your data source - another level 2 heading - using this reference. Check online to make sure that you get any formatting (e.g. italics, links, etc. correct) --> 
 
-
+## Reference
 Data Source    
-China Data Lab, 2020, "Countries-Deaths.tab", World COVID-19 Daily Cases with Basemap, https://doi.org/10.7910/DVN/L20LOT/FZLQRQ, Harvard Dataverse, V22, UNF:6:AntG1aQ3uPjWCuJZ5P2uEA== [fileUNF]
+China Data Lab, 2020, "Countries-Deaths.tab", World COVID-19 Daily Cases with Basemap, https://doi.org/10.7910/DVN/L20LOT/FZLQRQ, *Harvard Dataverse*, V22, UNF:6:AntG1aQ3uPjWCuJZ5P2uEA== [fileUNF]
 
 
