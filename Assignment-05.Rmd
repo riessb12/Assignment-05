@@ -9,7 +9,7 @@ output: html_document
 
 
 <!-- (2) Write a chunk that loads the needed tidyverse libraries but does not show up in any way in the final html document. --> 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(tidyr)
@@ -19,10 +19,11 @@ library(dplyr)
 library(HelpersMG)
 library(hflights)
 library(lubridate)
+library(knitr)
 ```
 
 <!-- (3) Write a chunk that uses wget to download the data file from the Harvard Dataverse and save is as raw_data/Countries-Deaths.tsv. This chunk should also not show up in any way in the final html and should be cached so that you do not repeatedly download the file as you reexecute your code. --> 
-```{r load_data, cache=TRUE, echo=FALSE, message=FALSE}
+```{r load_data, cache=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 wget(url = "https://dataverse.harvard.edu/api/access/datafile/:persistentId?persistentId=doi:10.7910/DVN/L20LOT/FZLQRQ", destfile = "./raw_data/Countries-Deaths.tsv")
 Country_Death_Tibble <- read_tsv("./raw_data/Countries-Deaths.tsv") %>% 
 filter(CNTRYNAME == "France" | CNTRYNAME == "Italy" | CNTRYNAME == "Germany") %>% pivot_longer(-CNTRYNAME, names_to = "Date", values_to= "Total_Deaths") %>% 
@@ -31,29 +32,40 @@ filter(CNTRYNAME == "France" | CNTRYNAME == "Italy" | CNTRYNAME == "Germany") %>
 
 
 <!-- (4) Write a chunk that creates a tidy dataset called output/GFI_total_deaths_by_date.csv. This file should have variables named Country, Date, and Total_Deaths. You will need to use several tidy tools to restructure the data with pivot_long() and convert the four-digit codes to dates using lubridate. Filter the data so that only information from Germany, France, and Italy are present. This chuck should not display anything in the final html document. --> 
-```{r, echo=FALSE, message=FALSE}
+```{r, echo=FALSE, message=FALSE, echo=FALSE, warning=FALSE}
 write_csv(Country_Death_Tibble, "./output/GFI_total_deaths_by_date.csv")
 ```
 
 
 <!-- (5) Write another chunk that reates a tidy dataset called output/GFI_daily_deaths_by_date.csv. This file should have variables named Country, Date, and Daily_Deaths. You can start from the previous data and use the lag() function to calculate the daily death rates as a difference between adjacent datapoints. Once again, this should not show up in the final html. --> 
-```{r, echo=FALSE, message=FALSE}
+```{r, echo=FALSE, message=FALSE,warning=FALSE}
 read_csv("./output/GFI_total_deaths_by_date.csv") %>% group_by(Country) %>% mutate(Daily_Deaths=Total_Deaths - lag(Total_Deaths, n=1, default = NA)) %>% select(-Total_Deaths) %>% write_csv("./output/GFI_daily_deaths_by_date.csv")
 ```
 
 <!-- (6) Write a chunk that uses ggplot2 to create a line graph that comparing the total deaths between the three countries over time. Color each line by country and use a line size of 1.5. Set the Y axis to be a log10 scale, and label that axis as Total COVID-19 Deaths. Please use the ggplot2 linedraw theme for your plot. --> 
-```{r, message=FALSE, echo=FALSE}
+```{r, message=FALSE, echo=FALSE, warning=FALSE}
 TotalDeaths <- read_csv("./output/GFI_total_deaths_by_date.csv")
 ggplot(TotalDeaths, aes(x=Date, y= Total_Deaths, color = Country)) +
 	geom_line(size = 1.5) +
 	scale_y_log10() +
-	ylab("Daily COVID-19 Deaths") +
+	ylab("Total COVID-19 Deaths") +
 	theme_linedraw()
 ```
 <!-- (7) Write a chunk that uses ggplot2 to create a line graph that comparing the daily deaths between the three countries over time. Color each line by country and use a line size of 1.5. Label the y axis as Daily COVID-19 Deaths and set the y-axis limits to range from 0 to 1,000. Please use the ggplot2 linedraw theme for your plot. --> 
+```{r, message=FALSE, echo=FALSE, warning=FALSE}
+DailyDeaths <- read_csv("./output/GFI_daily_deaths_by_date.csv")
 
+ggplot(DailyDeaths, aes(x = Date, y = Daily_Deaths, color = Country)) +
+	geom_line(size = 1.5) +
+	ylim(c(0,1000)) +
+	ylab("Daily COVID-19 Deaths") +
+	theme_linedraw()
+```
+	
+```
 
 <!-- (8) Write one last chuck that groups the daily death data by country and finds the maximum number of deaths per day. Use knitr::kable() to display this as a table in your html document. -->  
+
 
 
 <!-- (9) Using markdown, provide an introduction and conclusion section before and after the analysis that you just performed, respectively. These sections should be level 2 headings. --> 
